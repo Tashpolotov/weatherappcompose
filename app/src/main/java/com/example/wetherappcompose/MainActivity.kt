@@ -21,6 +21,7 @@ import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.wetherappcompose.data.WeatherModel
+import com.example.wetherappcompose.screens.DialogSearch
 import com.example.wetherappcompose.screens.MainCard
 import com.example.wetherappcompose.screens.TabLayout
 import com.example.wetherappcompose.ui.theme.WetherappcomposeTheme
@@ -38,17 +39,28 @@ class MainActivity : ComponentActivity() {
                 val dayList = remember {
                     mutableStateOf(listOf<WeatherModel>())
                 }
+
+                val dialogState = remember {
+                    mutableStateOf(false)
+                }
+
                 val currentDay = remember {
                     mutableStateOf(WeatherModel(
                         "",
                         "",
+                        "0.0",
+                        "0.0",
                         "",
-                        "",
-                        "",
-                        "",
-                        "",
+                        "0.0",
+                        "0.0",
                         ""
                     ))
+                }
+
+                if(dialogState.value) {
+                    DialogSearch(dialogState, onSubmit = {
+                        getData(it, this, dayList, currentDay)
+                    })
                 }
 
                 getData("London", this, dayList, currentDay)
@@ -61,8 +73,13 @@ class MainActivity : ComponentActivity() {
                     contentScale = ContentScale.FillBounds
                 )
                 Column{
-                    MainCard(currentDay)
-                    TabLayout(dayList)
+                    MainCard(currentDay, onClickSync = {
+                        getData("London", this@MainActivity, dayList, currentDay)
+                    },
+                        onClickSearch = {
+                            dialogState.value = true
+                        })
+                    TabLayout(dayList, currentDay)
                 }
 
             }
